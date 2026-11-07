@@ -27,7 +27,6 @@ int main() {
         std::cout << "Конструктор отказал: " << e.what() << "\n";
     }
 
-    // Раскомментировать и показать:
     // acc.balance_ = Money(0);   // ОШИБКА: private
     // const Account ca(Money(0)); ca.deposit(Money(1));  // ОШИБКА: deposit не const
     return 0;

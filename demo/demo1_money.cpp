@@ -19,7 +19,6 @@ int main() {
     std::cout << "Итого:     " << total << "\n";
     std::cout << "Дороже 500 руб.? " << (total > Money::rub(500)) << "\n";
 
-    // --- Раскомментировать по одной и показать ошибку компиляции ---
     // Money bad = 100;              // ОШИБКА: explicit — 100 чего: рублей или копеек?
     // total.kopecks_ = 5;           // ОШИБКА: kopecks_ is private
     // const Money c(100); c += price;  // ОШИБКА: += меняет объект, а он const

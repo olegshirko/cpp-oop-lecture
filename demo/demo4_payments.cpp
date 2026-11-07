@@ -24,7 +24,6 @@ int main() {
 
     std::cout << "--- конец main: вектор уничтожается, смотрим на деструкторы ---\n";
 
-    // Раскомментировать и показать:
     // PaymentMethod p;                       // ОШИБКА: абстрактный класс
     // class Hack : public CryptoPayment {};  // ОШИБКА: CryptoPayment — final
     return 0;
