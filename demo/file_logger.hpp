@@ -1,44 +1,37 @@
 #pragma once
-// ============================================================
-// FileLogger — RAII: ресурс (файл) привязан к времени жизни объекта
-//   конструктор открывает, деструктор закрывает — всегда.
-// ============================================================
+// FileLogger — учебная RAII-обёртка: объект владеет одним открытым файлом.
+// Локальный объект закрывает файл при конце блока, return и раскрутке стека.
+// Аварийное завершение процесса не даёт такой гарантии.
 #include <cstdio>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 
 class FileLogger {
 public:
-    explicit FileLogger(const std::string& path) : f_(std::fopen(path.c_str(), "a")) {
+    explicit FileLogger(const std::string& path)
+        : f_(std::fopen(path.c_str(), "a")) {
         if (!f_) throw std::runtime_error("не удалось открыть " + path);
-        std::cout << "  [Logger] файл открыт\n";
     }
 
     ~FileLogger() {
-        if (f_) {
-            std::fclose(f_);
-            std::cout << "  [Logger] файл закрыт\n";
-        }
+        std::fclose(f_);
     }
 
-    // Копировать нельзя: два объекта закрыли бы ОДИН файл дважды (Правило трёх)
+    // Копия указателя не создаёт новый файл: два владельца закрыли бы один FILE*.
     FileLogger(const FileLogger&) = delete;
     FileLogger& operator=(const FileLogger&) = delete;
 
-    // Перемещать можно: «передаём владение файлом» (Правило пяти)
-    FileLogger(FileLogger&& o) noexcept : f_(o.f_) { o.f_ = nullptr; }
-    FileLogger& operator=(FileLogger&& o) noexcept {
-        if (this != &o) {
-            if (f_) std::fclose(f_);
-            f_ = o.f_;
-            o.f_ = nullptr;
-        }
-        return *this;
+    void write(const std::string& msg) {
+        if (std::fprintf(f_, "%s\n", msg.c_str()) < 0)
+            throw std::runtime_error("не удалось записать сообщение");
     }
 
-    void write(const std::string& msg) { if (f_) std::fprintf(f_, "%s\n", msg.c_str()); }
-
 private:
+    // В успешно созданном объекте f_ не равен nullptr.
+    // Перемещение в этом занятии не реализуем и не используем.
     std::FILE* f_;
 };
+
+// В учебном деструкторе результат fclose не обрабатывается: деструктор
+// не сообщает об ошибке записи на диск. Для важных данных нужен отдельный
+// проверяемый шаг сохранения; закрытие файла само по себе не гарантирует успех записи.

@@ -1,3 +1,4 @@
+// СЛЕДУЮЩЕЕ ЗАНЯТИЕ. Не входит в обязательную программу этих двух пар.
 // ПОКАЗ 4. Полиморфизм: PaymentMethod, virtual, override, abstract, final
 // Сборка: g++ -std=c++20 -Wall -Wextra demo4_payments.cpp -o demo4 && ./demo4
 #include <iostream>

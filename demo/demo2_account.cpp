@@ -1,33 +1,51 @@
-// ПОКАЗ 2. Account: инвариант, private, конструктор, const-методы
+// ПАРА 1, ДО перегрузки операторов. Account: инвариант и проверки операций.
 // Сборка: g++ -std=c++20 -Wall -Wextra demo2_account.cpp -o demo2 && ./demo2
+#include <cassert>
 #include <iostream>
 #include "account.hpp"
 
-// «Как было бы без инкапсуляции» — показать СНАЧАЛА, чтобы студенты сами увидели проблему
 struct BadAccount { Money balance; };
 
 int main() {
-    BadAccount bad{Money::rub(1000)};
-    bad.balance = Money::rub(-999999);   // компилятор не против! Кто следит за балансом?
-    std::cout << "BadAccount: " << bad.balance << "  <-- инвариант сломан\n\n";
+    BadAccount bad{Money(100000)};
+    bad.balance = Money(-99999900);
+    std::cout << "Открытое поле: " << bad.balance.str() << " — правило нарушено\n\n";
 
-    // Теперь правильно
-    Account acc(Money::rub(1000));
-    acc.deposit(Money::rub(500));
-    std::cout << "После пополнения: " << acc.balance() << "\n";
+    Account acc(Money(100000));
+    acc.deposit(Money(50000));
+    std::cout << "После пополнения: " << acc.balance().str() << "\n";
 
-    std::cout << "Снять 2000: " << (acc.withdraw(Money::rub(2000)) ? "ок" : "не хватает средств") << "\n";
-    std::cout << "Снять 300:  " << (acc.withdraw(Money::rub(300))  ? "ок" : "не хватает средств") << "\n";
-    std::cout << "Баланс: " << acc.balance() << "\n";
+    bool rejected = acc.withdraw(Money(200000));
+    assert(!rejected);
+    assert(acc.balance().kopecks() == 150000);
+    std::cout << "Снять 2000 руб.: отказ; баланс " << acc.balance().str() << "\n";
 
-    // Невалидный объект создать нельзя — конструктор не даст
+    bool accepted = acc.withdraw(Money(30000));
+    assert(accepted);
+    assert(acc.balance().kopecks() == 120000);
+    std::cout << "Снять 300 руб.: успех; баланс " << acc.balance().str() << "\n";
+
     try {
-        Account broken(Money::rub(-5));
+        acc.withdraw(Money(-100));
+        assert(false && "отрицательная сумма должна быть отвергнута");
+    } catch (const std::invalid_argument& e) {
+        std::cout << "Отрицательное снятие: " << e.what() << "\n";
+    }
+    assert(acc.balance().kopecks() == 120000);
+
+    try {
+        Account broken(Money(-500));
+        assert(false && "отрицательный начальный баланс должен быть отвергнут");
     } catch (const std::invalid_argument& e) {
         std::cout << "Конструктор отказал: " << e.what() << "\n";
     }
 
-    // acc.balance_ = Money(0);   // ОШИБКА: private
-    // const Account ca(Money(0)); ca.deposit(Money(1));  // ОШИБКА: deposit не const
-    return 0;
+    // balance() возвращает значение: изменение копии не меняет счёт.
+    Money snapshot = acc.balance();
+    snapshot.subtract(Money(120000));
+    assert(snapshot.kopecks() == 0);
+    assert(acc.balance().kopecks() == 120000);
+
+    // acc.balance_ = Money(0);  // ОШИБКА: поле закрыто.
+    // const Account ca(Money(0)); ca.deposit(Money(1));  // ОШИБКА: deposit не const.
 }

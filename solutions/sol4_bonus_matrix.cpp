@@ -1,6 +1,7 @@
-// РЕШЕНИЕ (для преподавателя). Условие — в tasks/task4_bonus_matrix.cpp
+// Решение дополнительного задания. Условие — в tasks/task4_bonus_matrix.cpp.
 // ============================================================
-// БОНУС. Класс Matrix — Правило нуля, operator(), transpose
+// БОНУС ПОСЛЕ СЛЕДУЮЩИХ ТЕМ. Matrix: vector, operator(), transpose
+// Не входит в обязательные две пары; требует отдельного знакомства с перемещением.
 // ============================================================
 // Напишите класс Matrix (выше main):
 //   - хранит double в std::vector<double> (плоский массив rows*cols)
@@ -10,8 +11,11 @@
 //   - Matrix transpose() const — возвращает НОВУЮ транспонированную матрицу
 //   - Копирование и перемещение: НЕ пишите руками! (Правило нуля — vector всё сделает сам)
 //
-// Сборка:  g++ -std=c++20 -Wall -Wextra task4_bonus_matrix.cpp -o task4 && ./task4
+// Сборка из корня: g++ -std=c++20 -Wall -Wextra solutions/sol4_bonus_matrix.cpp -o task4 && ./task4
 // ============================================================
+#ifdef NDEBUG
+#error "Проверки требуют assert: собирайте без -DNDEBUG"
+#endif
 #include <cassert>
 #include <iostream>
 #include <stdexcept>

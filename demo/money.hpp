@@ -1,35 +1,44 @@
 #pragma once
 // ============================================================
 // Money — деньги в копейках (целое число), а не в double.
-// Строим по шагам прямо на показе: ШАГ 1 -> 2 -> 3
+// Конструктор уже знаком. Продолжаем: const -> обычные методы -> операторы.
+// Учебные суммы небольшие: аргументы и результаты арифметики должны
+// помещаться в long long. Проверка переполнения здесь не реализована.
 // ============================================================
 #include <iostream>
 #include <string>
 
 class Money {
 public:
-    // ШАГ 1. Конструктор + explicit:
+    // Повтор прошлого занятия: конструктор + explicit.
     //   Money m = 100;   // ОШИБКА — 100 чего? рублей? копеек?
     //   Money m(100);    // OK — намерение явное
     explicit Money(long long kopecks = 0) : kopecks_(kopecks) {}
 
     static Money rub(long long r, int kop = 0) { return Money(r * 100 + kop); }
 
-    // ШАГ 2. const-метод: «только читаю, объект не меняю»
+    // Наблюдатель: можно вызвать и у const Money.
     long long kopecks() const { return kopecks_; }
 
     std::string str() const {
-        long long k = kopecks_ < 0 ? -kopecks_ : kopecks_;
+        // Модуль в беззнаковом типе: даже минимальное long long печатается корректно.
+        unsigned long long k = kopecks_ < 0
+            ? 0ULL - static_cast<unsigned long long>(kopecks_)
+            : static_cast<unsigned long long>(kopecks_);
         return std::string(kopecks_ < 0 ? "-" : "") + std::to_string(k / 100) + "." +
                (k % 100 < 10 ? "0" : "") + std::to_string(k % 100) + " руб.";
     }
 
-    // ШАГ 3. Операторы. += меняет левый операнд -> член класса
-    Money& operator+=(Money o) { kopecks_ += o.kopecks_; return *this; }
-    Money& operator-=(Money o) { kopecks_ -= o.kopecks_; return *this; }
+    // Обычные методы изменения. Разбираем их до перегрузки операторов.
+    void add(Money amount) { kopecks_ += amount.kopecks_; }
+    void subtract(Money amount) { kopecks_ -= amount.kopecks_; }
+
+    // Позже: операторы дают знакомую запись для тех же действий.
+    Money& operator+=(Money o) { add(o); return *this; }
+    Money& operator-=(Money o) { subtract(o); return *this; }
 
 private:
-    long long kopecks_;   // инвариант: всегда целое число копеек
+    long long kopecks_;   // Сумма в копейках; отрицательные значения допустимы.
 };
 
 // Бинарные операторы — свободные функции (оба операнда равноправны)

@@ -1,3 +1,4 @@
+// СЛЕДУЮЩЕЕ ЗАНЯТИЕ. Не входит в обязательную программу этих двух пар.
 // ПОКАЗ 5. Всё вместе: Order (композиция) = Money + Account + PaymentMethod + FileLogger
 // Сборка: g++ -std=c++20 -Wall -Wextra demo5_order.cpp -o demo5 && ./demo5
 #include <iostream>
@@ -7,7 +8,8 @@
 #include "file_logger.hpp"
 
 // Order НЕ наследуется от логгера и способа оплаты, а ИМЕЕТ их (has-a).
-// Своих деструкторов/копирования не пишем -> Правило нуля.
+// Члены сами освобождают ресурсы. Копирование Order недоступно из-за его членов.
+// FileLogger в этой версии не перемещается, поэтому Order также не перемещается.
 class Order {
 public:
     Order(std::string id, std::unique_ptr<PaymentMethod> payment, const std::string& logfile)
@@ -30,6 +32,8 @@ private:
     std::unique_ptr<PaymentMethod> payment_;   // полиморфный объект -> владеет unique_ptr
     FileLogger log_;                           // конкретный тип -> хранится по значению
     Money total_{};
+    // Члены уничтожаются в обратном порядке объявления:
+    // total_, log_, payment_, id_.
 };
 
 int main() {
